@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHECC Finder — search Australian export commodity codes</title>
+<meta name="description" content="Free, offline-capable search over the Australian Harmonized Export Commodity Classification (AHECC). Search by product name, synonym, HS code or AHECC code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2b39;
+    --ink-soft:#33475a;
+    --paper:#f6f1e4;
+    --paper-deep:#eee6d0;
+    --paper-deeper:#e4d9bd;
+    --rule:#cdbf98;
+    --brass:#9c7a2e;
+    --brass-bright:#b8923f;
+    --current:#3f6b4a;
+    --current-bg:#e4ede2;
+    --superseded:#8a3b2e;
+    --superseded-bg:#f1e2dc;
+    --shadow: 0 1px 0 rgba(28,43,57,0.06);
+    --focus: 0 0 0 3px rgba(156,122,46,0.35);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    background:var(--ink);
+    color:var(--paper);
+    padding:2.75rem 1.5rem 2.25rem;
+    position:relative;
+    overflow:hidden;
+  }
+  header.masthead::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(246,241,228,0.035) 0px, rgba(246,241,228,0.035) 1px, transparent 1px, transparent 28px);
+    pointer-events:none;
+  }
+  .masthead-inner{
+    max-width:960px;
+    margin:0 auto;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(2rem, 5vw, 2.9rem);
+    line-height:1.05;
+    margin:0 0 0.6rem;
+    letter-spacing:-0.01em;
+  }
+  .masthead p.sub{
+    font-size:1rem;
+    line-height:1.55;
+    color:#cdd7de;
+    max-width:56ch;
+    margin:0;
+  }
+
+  /* ---------- Search ---------- */
+  .search-panel{
+    max-width:960px;
+    margin:-1.75rem auto 0;
+    padding:0 1.5rem;
+    position:relative;
+    z-index:2;
+  }
+  .search-card{
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    box-shadow:0 10px 24px -14px rgba(28,43,57,0.35);
+    padding:1.25rem 1.25rem 1rem;
+  }
+  .search-row{
+    display:flex;
+    align-items:flex-end;
+    gap:0.75rem;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:0.5rem;
+  }
+  .search-row label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:0.3rem;
+  }
+  #q{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:'Fraunces', serif;
+    font-size:1.5rem;
+    color:var(--ink);
+    outline:none;
+    padding:0.15rem 0;
+    min-width:0;
+  }
+  #q::placeholder{ color:#9a8f74; font-weight:400; }
+  #q:focus-visible{ box-shadow:none; }
+  .search-row:focus-within{ border-bottom-color:var(--brass); }
+
+  .clear-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    background:none;
+    border:1px solid var(--rule);
+    border-radius:3px;
+    color:var(--ink-soft);
+    padding:0.4rem 0.7rem;
+    cursor:pointer;
+    letter-spacing:0.04em;
+  }
+  .clear-btn:hover{ border-color:var(--brass); color:var(--brass); }
+  .clear-btn:focus-visible{ box-shadow:var(--focus); outline:none; }
+
+  .controls-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1.25rem;
+    align-items:center;
+    margin-top:0.85rem;
+    font-size:0.85rem;
+  }
+  .status-pills{
+    display:inline-flex;
+    border:1px solid var(--rule);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .status-pills button{
+    font-family:'Inter', sans-serif;
+    font-size:0.78rem;
+    font-weight:500;
+    background:var(--paper);
+    border:none;
+    padding:0.4rem 0.85rem;
+    cursor:pointer;
+    color:var(--ink-soft);
+    border-right:1px solid var(--rule);
+  }
+  .status-pills button:last-child{ border-right:none; }
+  .status-pills button.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .status-pills button:focus-visible{ box-shadow:var(--focus); outline:none; }
+
+  .chapter-select{
+    font-family:'Inter', sans-serif;
+    font-size:0.82rem;
+    border:1px solid var(--rule);
+    border-radius:20px;
+    padding:0.4rem 0.7rem;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .chapter-select:focus-visible{ box-shadow:var(--focus); outline:none; }
+
+  .expand-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.76rem;
+    color:var(--brass);
+    margin-top:0.7rem;
+    line-height:1.5;
+    min-height:1.1em;
+  }
+  .expand-note b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- Results ---------- */
+  main{
+    max-width:960px;
+    margin:1.5rem auto 4rem;
+    padding:0 1.5rem;
+  }
+  .result-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin:0 0 0.75rem;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:0.4rem;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:3.5rem 1rem;
+    color:var(--ink-soft);
+  }
+  .empty-state .glyph{
+    font-family:'Fraunces', serif;
+    font-size:2.2rem;
+    color:var(--brass);
+    margin-bottom:0.5rem;
+  }
+  .empty-state p{ margin:0.25rem 0; font-size:0.95rem; }
+  .empty-state .examples{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    margin-top:0.9rem;
+  }
+  .examples button{
+    font-family:'IBM Plex Mono', monospace;
+    background:var(--paper-deep);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:0.25rem 0.55rem;
+    margin:0.2rem;
+    cursor:pointer;
+    color:var(--ink);
+    font-size:0.8rem;
+  }
+  .examples button:hover{ border-color:var(--brass); color:var(--brass); }
+
+  .result-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    border-top:1px solid var(--rule);
+  }
+  .result-row{
+    display:grid;
+    grid-template-columns: 92px 108px 1fr 84px;
+    gap:0.9rem;
+    align-items:start;
+    padding:0.85rem 0.4rem;
+    border-bottom:1px solid var(--rule);
+    animation:fadein 0.25s ease-out both;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .result-row{ animation:none; }
+  }
+  @keyframes fadein{ from{opacity:0; transform:translateY(2px);} to{opacity:1; transform:none;} }
+
+  .result-row:nth-child(odd){ background:rgba(238,230,208,0.45); }
+
+  .code-col{ font-family:'IBM Plex Mono', monospace; }
+  .code-col .hs{ font-size:0.85rem; color:var(--ink-soft); }
+  .code-col .ahecc{ font-size:1rem; font-weight:600; color:var(--ink); }
+
+  .unit-col{ font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink-soft); }
+  .unit-col .label{ display:block; font-size:0.65rem; letter-spacing:0.08em; text-transform:uppercase; color:#9a8f74; margin-bottom:0.15rem; }
+
+  .desc-col p{ margin:0; font-size:0.92rem; line-height:1.45; }
+  .desc-col .dates{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:#8b8066; margin-top:0.3rem; }
+  .assay-flag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.06em;
+    color:var(--superseded);
+    border:1px solid var(--superseded);
+    border-radius:2px;
+    padding:0.05rem 0.3rem;
+    margin-left:0.4rem;
+    vertical-align:middle;
+  }
+
+  .status-col{ text-align:right; }
+  .stamp{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+    padding:0.22rem 0.4rem;
+    border-radius:2px;
+    border:1.5px solid currentColor;
+    transform:rotate(-3deg);
+  }
+  .stamp.current{ color:var(--current); background:var(--current-bg); }
+  .stamp.superseded{ color:var(--superseded); background:var(--superseded-bg); }
+
+  .more-note{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    padding:1.25rem 0 0.5rem;
+  }
+
+  @media (max-width: 640px){
+    .result-row{
+      grid-template-columns: 1fr;
+      gap:0.35rem;
+    }
+    .status-col{ text-align:left; }
+    .code-col{ display:flex; gap:0.6rem; align-items:baseline; }
+  }
+
+  footer{
+    max-width:960px;
+    margin:0 auto 3rem;
+    padding:1.5rem 1.5rem 0;
+    border-top:1px solid var(--rule);
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  footer a{ color:var(--brass); }
+
+  :focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">Free &amp; unofficial reference tool</p>
+    <h1>AHECC Finder</h1>
+    <p class="sub">Search the Australian Harmonized Export Commodity Classification by product name, everyday synonym, HS code or AHECC code. Type "pig" and it knows you mean "swine".</p>
+  </div>
+</header>
+
+<div class="search-panel">
+  <div class="search-card">
+    <div class="search-row">
+      <div style="flex:1">
+        <label for="q">Search product, HS code, or AHECC code</label>
+        <input id="q" type="text" placeholder="e.g. pig, wool, 010121, timber…" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="clear-btn" id="clearBtn" type="button">Clear</button>
+    </div>
+    <div class="controls-row">
+      <div class="status-pills" role="group" aria-label="Filter by status">
+        <button data-status="current" class="active" type="button">Current only</button>
+        <button data-status="all" type="button">Include historical</button>
+        <button data-status="historical" type="button">Historical only</button>
+      </div>
+      <select class="chapter-select" id="chapterSelect" aria-label="Filter by HS chapter">
+        <option value="">All chapters</option>
+      </select>
+    </div>
+    <div class="expand-note" id="expandNote" aria-live="polite"></div>
+  </div>
+</div>
+
+<main>
+  <div class="result-meta" id="resultMeta" aria-live="polite"></div>
+  <div id="resultsWrap"></div>
+</main>
+
+<footer>
+  <p>Data derived from the Australian Border Force AHECC reference table. Verify anything customs-critical against
+  <a href="https://www.abs.gov.au/statistics/classifications/australian-harmonized-export-commodity-classification-ahecc/latest-release" target="_blank" rel="noopener">the official ABS AHECC release</a>
+  or ABF's Tariff Advice System (1800 053 016). This is an independent, unofficial tool — not affiliated with the
+  Australian Border Force or the ABS.</p>
+</footer>
+
+<script>
+(function(){
+  const els = {
+    q: document.getElementById('q'),
+    clear: document.getElementById('clearBtn'),
+    pills: document.querySelectorAll('.status-pills button'),
+    chapterSelect: document.getElementById('chapterSelect'),
+    expandNote: document.getElementById('expandNote'),
+    resultMeta: document.getElementById('resultMeta'),
+    resultsWrap: document.getElementById('resultsWrap'),
+  };
+
+  let DATA = [];
+  let SYN_INDEX = new Map(); // word -> [group words]
+  let statusFilter = 'current';
+  let chapterFilter = '';
+  const MAX_RENDER = 300;
+  const CHAPTER_TITLES = {}; // filled from first-seen description per chapter, best-effort
+
+  const EXAMPLES = ['pig', 'wool', 'timber', 'gold', 'wine', '010121'];
+
+  function debounce(fn, ms){
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  function buildSynIndex(groups){
+    const idx = new Map();
+    groups.forEach(group => {
+      const norm = group.map(w => w.toLowerCase());
+      norm.forEach(w => idx.set(w, norm));
+    });
+    return idx;
+  }
+
+  function populateChapters(){
+    const chapters = new Set(DATA.map(r => r.h.slice(0,2)));
+    const sorted = Array.from(chapters).sort();
+    sorted.forEach(ch => {
+      const opt = document.createElement('option');
+      opt.value = ch;
+      opt.textContent = 'Chapter ' + ch;
+      els.chapterSelect.appendChild(opt);
+    });
+  }
+
+  function tokenize(query){
+    return query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  }
+
+  function expandToken(tok){
+    const variants = new Set([tok]);
+    if (SYN_INDEX.has(tok)) {
+      SYN_INDEX.get(tok).forEach(w => variants.add(w));
+    }
+    return Array.from(variants);
+  }
+
+  function escapeRegex(s){
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // Build a matcher for one token's variant set. Numeric tokens (HS/AHECC
+  // fragments) use plain substring matching against the code fields only, so
+  // "0101" still finds every code containing that prefix. Word tokens use
+  // whole-word matching against the description, so "wine" does not match
+  // inside "swine" and "gold" does not match inside "golden".
+  function buildTokenTest(variants, isNumeric){
+    if (isNumeric) {
+      return (rec) => variants.some(v => rec.h.includes(v) || rec.a.includes(v));
+    }
+    const pattern = new RegExp('\\b(' + variants.map(escapeRegex).join('|') + ')\\b', 'i');
+    return (rec) => pattern.test(rec.d);
+  }
+
+  function search(query){
+    const tokens = tokenize(query);
+    if (tokens.length === 0) return { matches: [], expandedTerms: [] };
+
+    const tokenVariants = tokens.map(expandToken);
+    const expandedTerms = [];
+    tokens.forEach((tok, i) => {
+      tokenVariants[i].forEach(v => { if (v !== tok && !expandedTerms.includes(v)) expandedTerms.push(v); });
+    });
+
+    const tokenTests = tokens.map((tok, i) => buildTokenTest(tokenVariants[i], /^\d+$/.test(tok)));
+
+    const matches = DATA.filter(rec => {
+      if (statusFilter === 'current' && rec.e) return false;
+      if (statusFilter === 'historical' && !rec.e) return false;
+      if (chapterFilter && rec.h.slice(0,2) !== chapterFilter) return false;
+
+      return tokenTests.every(test => test(rec));
+    });
+
+    return { matches, expandedTerms };
+  }
+
+  function renderEmpty(){
+    els.resultMeta.textContent = '';
+    els.resultsWrap.innerHTML = `
+      <div class="empty-state">
+        <div class="glyph">§</div>
+        <p>Start typing a product name, synonym, or code above.</p>
+        <p>Try: <span class="examples" id="exampleBtns"></span></p>
+      </div>`;
+    const wrap = document.getElementById('exampleBtns');
+    EXAMPLES.forEach(ex => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = ex;
+      b.addEventListener('click', () => { els.q.value = ex; runSearch(); els.q.focus(); });
+      wrap.appendChild(b);
+    });
+  }
+
+  function renderNoMatches(query){
+    els.resultMeta.textContent = '0 results for "' + query + '"';
+    els.resultsWrap.innerHTML = `
+      <div class="empty-state">
+        <div class="glyph">∅</div>
+        <p>No matches for "<b>${escapeHtml(query)}</b>".</p>
+        <p>Try a broader term, check the spelling, or search a partial HS code.</p>
+      </div>`;
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderResults(matches, query){
+    const total = matches.length;
+    const shown = matches.slice(0, MAX_RENDER);
+
+    els.resultMeta.textContent = total + (total === 1 ? ' result' : ' results') + ' for "' + query + '"';
+
+    const list = document.createElement('ul');
+    list.className = 'result-list';
+
+    shown.forEach(rec => {
+      const li = document.createElement('li');
+      li.className = 'result-row';
+      const isCurrent = !rec.e;
+      const assay = rec.q === 'Y' ? '<span class="assay-flag">ASSAY</span>' : '';
+      const dates = isCurrent
+        ? 'Valid from ' + rec.s
+        : 'Valid ' + rec.s + ' – ' + rec.e;
+
+      li.innerHTML = `
+        <div class="code-col">
+          <span class="hs">${rec.h}</span><br>
+          <span class="ahecc">${rec.a}</span>
+        </div>
+        <div class="unit-col">
+          <span class="label">Unit</span>${rec.u || '—'}
+        </div>
+        <div class="desc-col">
+          <p>${escapeHtml(rec.d)}${assay}</p>
+          <div class="dates">${dates}</div>
+        </div>
+        <div class="status-col">
+          <span class="stamp ${isCurrent ? 'current' : 'superseded'}">${isCurrent ? 'CURRENT' : 'SUPERSEDED'}</span>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+
+    els.resultsWrap.innerHTML = '';
+    els.resultsWrap.appendChild(list);
+
+    if (total > MAX_RENDER) {
+      const note = document.createElement('div');
+      note.className = 'more-note';
+      note.textContent = `Showing first ${MAX_RENDER} of ${total} matches — narrow your search to see more.`;
+      els.resultsWrap.appendChild(note);
+    }
+  }
+
+  const runSearch = debounce(() => {
+    const query = els.q.value.trim();
+    if (!query) {
+      els.expandNote.textContent = '';
+      renderEmpty();
+      return;
+    }
+    const { matches, expandedTerms } = search(query);
+    els.expandNote.innerHTML = expandedTerms.length
+      ? 'Also matching: <b>' + expandedTerms.join(', ') + '</b>'
+      : '';
+    if (matches.length === 0) {
+      renderNoMatches(query);
+    } else {
+      renderResults(matches, query);
+    }
+  }, 120);
+
+  els.q.addEventListener('input', runSearch);
+  els.clear.addEventListener('click', () => { els.q.value = ''; els.q.focus(); runSearch(); });
+
+  els.pills.forEach(btn => {
+    btn.addEventListener('click', () => {
+      els.pills.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statusFilter = btn.dataset.status;
+      runSearch();
+    });
+  });
+
+  els.chapterSelect.addEventListener('change', () => {
+    chapterFilter = els.chapterSelect.value;
+    runSearch();
+  });
+
+  Promise.all([
+    fetch('data.json').then(r => r.json()),
+    fetch('synonyms.json').then(r => r.json())
+  ]).then(([data, syn]) => {
+    DATA = data;
+    SYN_INDEX = buildSynIndex(syn);
+    populateChapters();
+    renderEmpty();
+  }).catch(err => {
+    els.resultsWrap.innerHTML = '<div class="empty-state"><p>Could not load the data files. If you are running this locally, serve it over http:// (not file://) — try <code>python3 -m http.server</code> in this folder.</p></div>';
+    console.error(err);
+  });
+})();
+</script>
+
+</body>
+</html>
