@@ -124,7 +124,7 @@
     padding:0.15rem 0;
     min-width:0;
   }
-  #q::placeholder{ color:#9a8f74; font-weight:400; }
+  #q::placeholder{ color:var(--ink-soft); font-weight:400; }
   #q:focus-visible{ box-shadow:none; }
   .search-row:focus-within{ border-bottom-color:var(--brass); }
 
@@ -185,32 +185,6 @@
   }
   .expand-note b{ color:var(--ink); font-weight:600; }
 
-  .code-key{
-    display:flex;
-    flex-wrap:wrap;
-    gap:1.25rem;
-    margin-top:0.85rem;
-    padding-top:0.75rem;
-    border-top:1px dashed var(--rule);
-    font-size:0.78rem;
-    color:var(--ink-soft);
-  }
-  .code-key-item{ display:inline-flex; align-items:center; gap:0.45rem; }
-  .key-swatch{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:1.3rem;
-    height:1.3rem;
-    border-radius:50%;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem;
-    font-weight:600;
-    color:#fff;
-  }
-  .hs-swatch{ background:var(--ink-soft); }
-  .ahecc-swatch{ background:var(--brass); }
-
   /* ---------- Results ---------- */
   main{
     max-width:960px;
@@ -266,7 +240,7 @@
   }
   .result-header{
     display:grid;
-    grid-template-columns: 92px 108px 1fr 84px;
+    grid-template-columns: 152px 76px 1fr 96px;
     gap:0.9rem;
     padding:0.5rem 0.4rem;
     font-family:'IBM Plex Mono', monospace;
@@ -286,7 +260,7 @@
   }
   .result-row{
     display:grid;
-    grid-template-columns: 92px 108px 1fr 84px;
+    grid-template-columns: 152px 76px 1fr 96px;
     gap:0.9rem;
     align-items:start;
     padding:0.85rem 0.4rem;
@@ -300,7 +274,7 @@
 
   .result-row:nth-child(odd){ background:var(--paper-deep); }
 
-  .code-col{ font-family:'IBM Plex Mono', monospace; }
+  .code-col{ font-family:'IBM Plex Mono', monospace; min-width:0; overflow:hidden; }
   .code-col .code-line{ display:flex; align-items:baseline; gap:0.35rem; }
   .code-col .code-line + .code-line{ margin-top:0.25rem; }
   .code-col .tag{
@@ -317,11 +291,11 @@
   .code-col .hs{ font-size:0.85rem; color:var(--ink-soft); }
   .code-col .ahecc{ font-size:1rem; font-weight:600; color:var(--ink); }
 
-  .unit-col{ font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink-soft); }
-  .unit-col .label{ display:block; font-size:0.65rem; letter-spacing:0.08em; text-transform:uppercase; color:#9a8f74; margin-bottom:0.15rem; }
+  .unit-col{ font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink-soft); min-width:0; overflow:hidden; }
+  .unit-col .label{ display:block; font-size:0.65rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.15rem; }
 
   .desc-col p{ margin:0; font-size:0.92rem; line-height:1.45; }
-  .desc-col .dates{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:#8b8066; margin-top:0.3rem; }
+  .desc-col .dates{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--ink-soft); margin-top:0.3rem; }
   .assay-flag{
     display:inline-block;
     font-family:'IBM Plex Mono', monospace;
@@ -387,7 +361,7 @@
   <div class="masthead-inner">
     <p class="eyebrow">Free &amp; unofficial reference tool</p>
     <h1>AHECC Finder</h1>
-    <p class="sub">Search the Australian Harmonized Export Commodity Classification by product name, everyday synonym, HS code or AHECC code. Type "pig" and it knows you mean "swine".</p>
+    <p class="sub">Search the Australian Harmonized Export Commodity Classification by product name, everyday synonym, HS code or AHECC code.</p>
   </div>
 </header>
 
@@ -408,10 +382,6 @@
       </div>
     </div>
     <div class="expand-note" id="expandNote" aria-live="polite"></div>
-    <div class="code-key">
-      <span class="code-key-item"><span class="key-swatch hs-swatch">6</span> HS Code — international classification</span>
-      <span class="code-key-item"><span class="key-swatch ahecc-swatch">8</span> AHECC — Australian export code, used on export declarations</span>
-    </div>
   </div>
 </div>
 
@@ -554,7 +524,7 @@
     const header = document.createElement('li');
     header.className = 'result-header';
     header.innerHTML = `
-      <div>HS (6-digit) / AHECC (8-digit)</div>
+      <div>HS Code / AHECC</div>
       <div>Unit</div>
       <div>AHECC description</div>
       <div class="status-col">Status</div>
