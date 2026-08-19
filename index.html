@@ -10,20 +10,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1c2b39;
-    --ink-soft:#33475a;
-    --paper:#f6f1e4;
-    --paper-deep:#eee6d0;
-    --paper-deeper:#e4d9bd;
-    --rule:#cdbf98;
-    --brass:#9c7a2e;
-    --brass-bright:#b8923f;
-    --current:#3f6b4a;
-    --current-bg:#e4ede2;
-    --superseded:#8a3b2e;
-    --superseded-bg:#f1e2dc;
-    --shadow: 0 1px 0 rgba(28,43,57,0.06);
-    --focus: 0 0 0 3px rgba(156,122,46,0.35);
+    --ink:#0f3555;
+    --ink-soft:#3a5878;
+    --paper:#ffffff;
+    --paper-deep:#f2f6fa;
+    --paper-deeper:#e6edf4;
+    --rule:#d3dde6;
+    --brass:#1d70a8;
+    --brass-bright:#3f93c9;
+    --current:#2f7d4f;
+    --current-bg:#e3f0e7;
+    --superseded:#b23b2e;
+    --superseded-bg:#f6e5e2;
+    --shadow: 0 1px 0 rgba(15,53,85,0.06);
+    --focus: 0 0 0 3px rgba(29,112,168,0.35);
   }
 
   *{ box-sizing:border-box; }
@@ -50,7 +50,7 @@
     position:absolute;
     inset:0;
     background-image:
-      repeating-linear-gradient(0deg, rgba(246,241,228,0.035) 0px, rgba(246,241,228,0.035) 1px, transparent 1px, transparent 28px);
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 28px);
     pointer-events:none;
   }
   .masthead-inner{
@@ -174,16 +174,6 @@
   }
   .status-pills button:focus-visible{ box-shadow:var(--focus); outline:none; }
 
-  .chapter-select{
-    font-family:'Inter', sans-serif;
-    font-size:0.82rem;
-    border:1px solid var(--rule);
-    border-radius:20px;
-    padding:0.4rem 0.7rem;
-    background:var(--paper);
-    color:var(--ink);
-  }
-  .chapter-select:focus-visible{ box-shadow:var(--focus); outline:none; }
 
   .expand-note{
     font-family:'IBM Plex Mono', monospace;
@@ -194,6 +184,32 @@
     min-height:1.1em;
   }
   .expand-note b{ color:var(--ink); font-weight:600; }
+
+  .code-key{
+    display:flex;
+    flex-wrap:wrap;
+    gap:1.25rem;
+    margin-top:0.85rem;
+    padding-top:0.75rem;
+    border-top:1px dashed var(--rule);
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
+  .code-key-item{ display:inline-flex; align-items:center; gap:0.45rem; }
+  .key-swatch{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:1.3rem;
+    height:1.3rem;
+    border-radius:50%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    color:#fff;
+  }
+  .hs-swatch{ background:var(--ink-soft); }
+  .ahecc-swatch{ background:var(--brass); }
 
   /* ---------- Results ---------- */
   main{
@@ -248,6 +264,26 @@
     padding:0;
     border-top:1px solid var(--rule);
   }
+  .result-header{
+    display:grid;
+    grid-template-columns: 92px 108px 1fr 84px;
+    gap:0.9rem;
+    padding:0.5rem 0.4rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    border-bottom:1px solid var(--rule);
+    position:sticky;
+    top:0;
+    background:var(--paper);
+    z-index:1;
+  }
+  .result-header .status-col{ text-align:right; }
+  @media (max-width: 640px){
+    .result-header{ display:none; }
+  }
   .result-row{
     display:grid;
     grid-template-columns: 92px 108px 1fr 84px;
@@ -262,9 +298,22 @@
   }
   @keyframes fadein{ from{opacity:0; transform:translateY(2px);} to{opacity:1; transform:none;} }
 
-  .result-row:nth-child(odd){ background:rgba(238,230,208,0.45); }
+  .result-row:nth-child(odd){ background:var(--paper-deep); }
 
   .code-col{ font-family:'IBM Plex Mono', monospace; }
+  .code-col .code-line{ display:flex; align-items:baseline; gap:0.35rem; }
+  .code-col .code-line + .code-line{ margin-top:0.25rem; }
+  .code-col .tag{
+    font-size:0.58rem;
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:#fff;
+    background:var(--ink-soft);
+    border-radius:2px;
+    padding:0.06rem 0.28rem;
+    flex:none;
+  }
+  .code-col .tag.ahecc-tag{ background:var(--brass); }
   .code-col .hs{ font-size:0.85rem; color:var(--ink-soft); }
   .code-col .ahecc{ font-size:1rem; font-weight:600; color:var(--ink); }
 
@@ -338,7 +387,7 @@
   <div class="masthead-inner">
     <p class="eyebrow">Free &amp; unofficial reference tool</p>
     <h1>AHECC Finder</h1>
-    <p class="sub">Search the Australian Harmonized Export Commodity Classification by product name, everyday synonym, HS code or AHECC code. </p>
+    <p class="sub">Search the Australian Harmonized Export Commodity Classification by product name, everyday synonym, HS code or AHECC code. Type "pig" and it knows you mean "swine".</p>
   </div>
 </header>
 
@@ -346,8 +395,8 @@
   <div class="search-card">
     <div class="search-row">
       <div style="flex:1">
-        <label for="q">Search product, HS code , or AHECC code </label>
-        <input id="q" type="text" placeholder="e.g. pig, wool, 010121 ..." autocomplete="off" spellcheck="false">
+        <label for="q">Search product, HS code, or AHECC code</label>
+        <input id="q" type="text" placeholder="e.g. pig, wool, 010121, timber…" autocomplete="off" spellcheck="false">
       </div>
       <button class="clear-btn" id="clearBtn" type="button">Clear</button>
     </div>
@@ -357,11 +406,12 @@
         <button data-status="all" type="button">Include historical</button>
         <button data-status="historical" type="button">Historical only</button>
       </div>
-      <select class="chapter-select" id="chapterSelect" aria-label="Filter by HS chapter">
-        <option value="">All chapters</option>
-      </select>
     </div>
     <div class="expand-note" id="expandNote" aria-live="polite"></div>
+    <div class="code-key">
+      <span class="code-key-item"><span class="key-swatch hs-swatch">6</span> HS Code — international classification</span>
+      <span class="code-key-item"><span class="key-swatch ahecc-swatch">8</span> AHECC — Australian export code, used on export declarations</span>
+    </div>
   </div>
 </div>
 
@@ -383,7 +433,6 @@
     q: document.getElementById('q'),
     clear: document.getElementById('clearBtn'),
     pills: document.querySelectorAll('.status-pills button'),
-    chapterSelect: document.getElementById('chapterSelect'),
     expandNote: document.getElementById('expandNote'),
     resultMeta: document.getElementById('resultMeta'),
     resultsWrap: document.getElementById('resultsWrap'),
@@ -392,9 +441,7 @@
   let DATA = [];
   let SYN_INDEX = new Map(); // word -> [group words]
   let statusFilter = 'current';
-  let chapterFilter = '';
   const MAX_RENDER = 300;
-  const CHAPTER_TITLES = {}; // filled from first-seen description per chapter, best-effort
 
   const EXAMPLES = ['pig', 'wool', 'timber', 'gold', 'wine', '010121'];
 
@@ -410,17 +457,6 @@
       norm.forEach(w => idx.set(w, norm));
     });
     return idx;
-  }
-
-  function populateChapters(){
-    const chapters = new Set(DATA.map(r => r.h.slice(0,2)));
-    const sorted = Array.from(chapters).sort();
-    sorted.forEach(ch => {
-      const opt = document.createElement('option');
-      opt.value = ch;
-      opt.textContent = 'Chapter ' + ch;
-      els.chapterSelect.appendChild(opt);
-    });
   }
 
   function tokenize(query){
@@ -467,7 +503,6 @@
     const matches = DATA.filter(rec => {
       if (statusFilter === 'current' && rec.e) return false;
       if (statusFilter === 'historical' && !rec.e) return false;
-      if (chapterFilter && rec.h.slice(0,2) !== chapterFilter) return false;
 
       return tokenTests.every(test => test(rec));
     });
@@ -516,6 +551,16 @@
     const list = document.createElement('ul');
     list.className = 'result-list';
 
+    const header = document.createElement('li');
+    header.className = 'result-header';
+    header.innerHTML = `
+      <div>HS (6-digit) / AHECC (8-digit)</div>
+      <div>Unit</div>
+      <div>AHECC description</div>
+      <div class="status-col">Status</div>
+    `;
+    list.appendChild(header);
+
     shown.forEach(rec => {
       const li = document.createElement('li');
       li.className = 'result-row';
@@ -527,8 +572,8 @@
 
       li.innerHTML = `
         <div class="code-col">
-          <span class="hs">${rec.h}</span><br>
-          <span class="ahecc">${rec.a}</span>
+          <div class="code-line"><span class="tag hs-tag">HS</span><span class="hs">${rec.h}</span></div>
+          <div class="code-line"><span class="tag ahecc-tag">AHECC</span><span class="ahecc">${rec.a}</span></div>
         </div>
         <div class="unit-col">
           <span class="label">Unit</span>${rec.u || '—'}
@@ -585,18 +630,12 @@
     });
   });
 
-  els.chapterSelect.addEventListener('change', () => {
-    chapterFilter = els.chapterSelect.value;
-    runSearch();
-  });
-
   Promise.all([
     fetch('data.json').then(r => r.json()),
     fetch('synonyms.json').then(r => r.json())
   ]).then(([data, syn]) => {
     DATA = data;
     SYN_INDEX = buildSynIndex(syn);
-    populateChapters();
     renderEmpty();
   }).catch(err => {
     els.resultsWrap.innerHTML = '<div class="empty-state"><p>Could not load the data files. If you are running this locally, serve it over http:// (not file://) — try <code>python3 -m http.server</code> in this folder.</p></div>';
